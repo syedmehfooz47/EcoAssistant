@@ -3,7 +3,7 @@
 **AIEcoAssistant** is a powerful, AI-integrated mobile and web application designed to promote awareness and action on **water conservation** and **rainwater harvesting**. Built using modern, lightweight technologies, it offers an intuitive, cross-platform experience for individuals, students, and eco-activists alike.
 
 ✅ Available as both a **mobile Android app** and a **desktop-friendly website**.  
-🔗 [Live Website Demo](https://aichat-waterconservation.wuaze.com/a/index.html)  
+🔗 [Live Website Demo](https://ecoassistantai.netlify.app/)  
 📦 [Android APK v1.0.0](https://github.com/syedmehfooz47/EcoAssistant/releases/tag/v1.0.0)  
 📁 [GitHub Repository](https://github.com/syedmehfooz47/EcoAssistant)
 

@@ -2,45 +2,80 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"> <title>About - Eco Assistant</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>About - Eco Assistant</title>
+
+    <link rel="icon" type="image/png" href="logo-removebg-preview.png">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
-<body> <nav id="side-menu" class="side-menu" aria-hidden="true">
-    <div class="menu-header">Eco Assistant Menu</div>
-    <ul>
-        <li><a href="index.html" class="menu-link">AI Chatbot</a></li>
-        <li><a href="about.html" class="menu-link active">About</a></li>
-    </ul>
-</nav>
+<body>
 
-<div id="overlay" class="overlay"></div>
-
-<header class="app-header">
-    <div class="header-content-wrapper"> <button id="hamburger-btn" class="hamburger-btn" aria-label="Open Menu" aria-controls="side-menu" aria-expanded="false">
-        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0z" fill="none"/><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
-    </button>
-        <h1 class="app-title">About</h1>
-    </div>
-</header>
-
-<div class="app-content">
-    <div class="about-container">
-        <div class="about-content"> <h2>Project Name</h2>
-            <p>AI Chatbot for Water-Saving Tips (Eco Assistant)</p>
-            <h2>Purpose</h2>
-            <p>This chatbot leverages AI to provide users with practical tips, smart solutions, and actionable advice on water conservation, environmental protection, and sustainable living. Ask it questions like "How can I save water while cooking?" or "What are easy recycling tips?".</p>
-            <h2>Authors</h2>
-            <ul class="author-list">
-                <li>Syed Mehfooz C S</li> <li>Zeeshan Yalakpalli</li> <li>Shivshankar</li> <li>V Mohammed Hanzala</li> <li>Syed Mansoor</li>
-            </ul>
-            <h2>Technology</h2>
-            <p>Built using HTML, CSS, JavaScript, and the <a href="https://groq.com/" target="_blank" rel="noopener noreferrer">Groq</a> API for AI responses.</p>
+    <nav id="side-menu" class="side-menu" aria-hidden="true">
+        <div class="menu-header">
+            <img src="logo-removebg-preview.png" alt="Eco Assistant logo" class="menu-logo">
+            <span class="menu-title">Eco Assistant</span>
+            <button id="close-menu-btn" class="icon-button" aria-label="Close Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            </button>
         </div>
-    </div>
-</div>
+        <ul>
+            <li><a href="index.html" class="menu-link">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM9.47 14.12L8.5 13.1l-1.95 2.33L4.5 12.5l-1.03.93L6.5 17l2.97-3.88zM21 12h-2v-2h2v2zm-2-4h2V6h-2v2zm-2 4h2v-2h-2v2z"/></svg>
+                <span>AI Chatbot</span>
+            </a></li>
+            <li><a href="about.html" class="menu-link active">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 15c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1s1 .45 1 1v4c0 .55-.45 1-1 1zm1-8h-2V7h2v2z"/></svg>
+                <span>About</span>
+            </a></li>
+        </ul>
+    </nav>
 
-<script src="script.js"></script> </body>
+    <div id="overlay" class="overlay"></div>
+
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-left">
+                <button id="hamburger-btn" class="icon-button" aria-label="Open Menu" aria-controls="side-menu" aria-expanded="false">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+                </button>
+                <h1 class="app-title">About</h1>
+            </div>
+        </header>
+
+        <main class="page-main">
+            <div class="page-content">
+                <section class="about-section">
+                    <h2>Project Name</h2>
+                    <p>AI Chatbot for Water-Saving Tips (Eco Assistant)</p>
+                </section>
+                <section class="about-section">
+                    <h2>Purpose</h2>
+                    <p>This chatbot leverages AI to provide users with practical tips, smart solutions, and actionable advice on water conservation, environmental protection, and sustainable living. Ask it questions like "How can I save water while cooking?" or "What are easy recycling tips?".</p>
+                </section>
+                <section class="about-section">
+                    <h2>Technology</h2>
+                    <p>Built using HTML, CSS, JavaScript, and the Groq API for AI responses.</p>
+                </section>
+                <section class="about-section">
+                    <h2>Authors</h2>
+                    <ul class="author-list">
+                        <li>Syed Mehfooz C S</li>
+                        <li>Zeeshan Yalakpalli</li>
+                        <li>Shivshankar</li>
+                        <li>V Mohammed Hanzala</li>
+                        <li>Syed Mansoor</li>
+                    </ul>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
 </html>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="fcfed221-f4c2-4baf-8efa-de928f18d396" name="Local host" url="http://localhost">
+        <fileTransfer mountedRoot="C:\Users\mehfo\AndroidStudioProjects\EcoAssistant\app\src\main\assets" accessType="MOUNT" port="0" />
+      </webServer>
+    </option>
+  </component>
+</project>

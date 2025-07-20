@@ -1,159 +1,218 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+    // --- Side Menu Functionality ---
     const hamburgerBtn = document.getElementById('hamburger-btn');
+    const closeMenuBtn = document.getElementById('close-menu-btn');
     const sideMenu = document.getElementById('side-menu');
     const overlay = document.getElementById('overlay');
-    const menuLinks = document.querySelectorAll('.menu-link');
 
-    // --- Menu Toggle Functionality ---
-    function toggleMenu(forceClose = false) {
-        // Check if elements exist before using them
-        if (!sideMenu || !overlay) return;
+    const toggleMenu = (shouldOpen) => {
         const isOpen = sideMenu.classList.contains('open');
-        if (forceClose || isOpen) {
-            sideMenu.classList.remove('open');
-            overlay.classList.remove('active');
-            if (hamburgerBtn) hamburgerBtn.setAttribute('aria-expanded', 'false');
-            sideMenu.setAttribute('aria-hidden', 'true');
-        } else {
-            sideMenu.classList.add('open');
-            overlay.classList.add('active');
-            if (hamburgerBtn) hamburgerBtn.setAttribute('aria-expanded', 'true');
-            sideMenu.setAttribute('aria-hidden', 'false');
+        // If shouldOpen is not a boolean, toggle based on current state
+        if (typeof shouldOpen !== 'boolean') {
+            shouldOpen = !isOpen;
         }
-    }
 
-    if (hamburgerBtn && sideMenu && overlay) {
-        hamburgerBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(); });
-        overlay.addEventListener('click', () => { toggleMenu(true); });
-        menuLinks.forEach(link => { link.addEventListener('click', () => { setTimeout(() => toggleMenu(true), 50); }); });
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && sideMenu.classList.contains('open')) { toggleMenu(true); } });
-    } else { console.warn("Menu elements missing."); }
+        sideMenu.classList.toggle('open', shouldOpen);
+        overlay.classList.toggle('active', shouldOpen);
+        document.body.classList.toggle('no-scroll', shouldOpen);
+    };
 
-    // --- Chat Functionality ---
+    if (hamburgerBtn) hamburgerBtn.addEventListener('click', () => toggleMenu(true));
+    if (closeMenuBtn) closeMenuBtn.addEventListener('click', () => toggleMenu(false));
+    if (overlay) overlay.addEventListener('click', () => toggleMenu(false));
+
+    // --- Chatbot Functionality ---
+    const chatMain = document.getElementById('chat-main');
     const chatMessages = document.getElementById('chat-messages');
     const userInput = document.getElementById('user-input');
     const sendButton = document.getElementById('send-button');
-    const chatInputArea = document.getElementById('chat-input-area'); // Get fixed input area
+    const welcomeContainer = document.getElementById('welcome-container');
 
-    if (chatMessages && userInput && sendButton && chatInputArea) {
+    if (chatMain && chatMessages && userInput && sendButton) {
+
+        // --- API Details ---
         const groqApiUrl = 'https://api.groq.com/openai/v1/chat/completions';
-        const groqApiKey = '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'; // 🚨 Security Warning
-        console.warn("SECURITY WARNING: Groq API Key is hardcoded.");
+        // IMPORTANT: Replace with your actual key. Do not expose this key publicly.
+        const groqApiKey = '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';
+        if (groqApiKey && groqApiKey.startsWith('gsk_')) {
+            console.warn("SECURITY WARNING: Groq API Key is hardcoded. For production, use a backend proxy to protect your key.");
+        }
 
-        sendButton.disabled = true;
-        userInput.placeholder = "Ask a question...";
+        let chatHistory = [];
 
-        // --- Dynamic Padding for Fixed Input ---
-        let lastInputAreaHeight = 0;
+        // --- Event Listeners ---
+        userInput.addEventListener('input', () => {
+            userInput.style.height = 'auto';
+            userInput.style.height = `${userInput.scrollHeight}px`;
+            sendButton.disabled = userInput.value.trim() === '';
+        });
 
-        function updateMessagesPadding() {
-            if (!chatInputArea || !chatMessages) return; // Ensure elements exist
-            const currentHeight = chatInputArea.offsetHeight;
-            // Add console log for debugging
-            console.log(`DEBUG: Input Area Height = ${currentHeight}px`);
-            if (currentHeight > 0 && currentHeight !== lastInputAreaHeight) {
-                lastInputAreaHeight = currentHeight;
-                const newPadding = currentHeight + 10; // Add 10px buffer
-                chatMessages.style.paddingBottom = `${newPadding}px`;
-                 // Add console log for debugging
-                console.log(`DEBUG: Set chatMessages paddingBottom = ${newPadding}px`);
-                // Scroll down when padding changes *only if already near bottom*
-                 // Check if scrolled near the bottom before auto-scrolling
-                // const isScrolledToBottom = chatMessages.scrollHeight - chatMessages.clientHeight <= chatMessages.scrollTop + currentHeight + 20; // Check within 20px + input height buffer
-                // if(isScrolledToBottom){
-                     scrollToBottom(); // Scroll when padding updates, assuming user wants to see new space
-                // }
+        sendButton.addEventListener('click', handleSendMessage);
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage();
+            }
+        });
+
+        // --- Core Functions ---
+        function handleSendMessage() {
+            const userText = userInput.value.trim();
+            if (userText) {
+                addMessage(userText, 'user');
+                userInput.value = '';
+                userInput.style.height = 'auto';
+                sendButton.disabled = true;
+                sendMessageToGroq(userText);
+            }
+        };
+
+        async function sendMessageToGroq(message) {
+            if (!groqApiKey || groqApiKey === "YOUR_GROQ_API_KEY_HERE") {
+                addMessage('Error: API Key is not configured. Please add your Groq API key in script.js.', 'bot');
+                return;
+            }
+
+            const loadingElement = showTypingIndicator();
+            userInput.disabled = true;
+
+            const systemPrompt = `You are Eco Assistant, an expert AI focused on environmental issues, water conservation, sustainability, recycling, and climate change. Provide helpful, accurate, and actionable advice. Keep responses concise and easy to understand. Format important points or steps using Markdown (like bullet points *, lists 1., or bold **) when appropriate. Do not engage in topics outside of this scope. Be friendly and encouraging.`;
+
+            // Add current user message to chat history for context
+            const currentChat = chatHistory.map(msg => ({
+                role: msg.sender === 'user' ? 'user' : 'assistant',
+                content: msg.text
+            }));
+
+            const payload = {
+                model: "llama3-8b-8192",
+                messages: [
+                    { role: "system", content: systemPrompt },
+                    ...currentChat,
+                    { role: "user", content: message }
+                ]
+            };
+
+            try {
+                const response = await fetch(groqApiUrl, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${groqApiKey}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+
+                const data = await response.json();
+                const botReply = data.choices[0]?.message?.content;
+
+                if (botReply) {
+                    addMessage(botReply.trim(), 'bot');
+                } else {
+                    addMessage('Sorry, I received an empty response.', 'bot');
+                }
+
+            } catch (error) {
+                console.error('Error fetching from Groq API:', error);
+                addMessage(`Sorry, an error occurred: ${error.message}`, 'bot');
+            } finally {
+                removeTypingIndicator(loadingElement);
+                userInput.disabled = false;
+                userInput.focus();
             }
         }
 
-        // Use ResizeObserver for accurate height changes
-        if (typeof ResizeObserver === 'function') {
-            const inputAreaObserver = new ResizeObserver(updateMessagesPadding);
-            inputAreaObserver.observe(chatInputArea);
-             console.log("DEBUG: ResizeObserver attached to input area."); // DEBUG
-        } else {
-            // Fallback check (less reliable)
-            userInput.addEventListener('input', updateMessagesPadding);
-            window.addEventListener('resize', updateMessagesPadding);
-            console.warn("DEBUG: ResizeObserver not supported, using fallback for padding adjustment.");
-        }
-        // Initial padding calculation after a delay for layout rendering
-        setTimeout(updateMessagesPadding, 300); // Increased delay slightly
+        // --- UI & Storage Helper Functions ---
 
+        function addMessage(text, sender) {
+            if (welcomeContainer && window.getComputedStyle(welcomeContainer).display !== 'none') {
+                welcomeContainer.style.display = 'none';
+            }
+            if (!chatMain.classList.contains('chat-active')) {
+                chatMain.classList.add('chat-active');
+            }
 
-        // --- Keyboard Handling ---
-        userInput.addEventListener('focus', () => {
-            console.log("DEBUG: User input focused"); // DEBUG
-            // On focus, primarily ensure the latest messages are scrolled into view above the input area
-            setTimeout(scrollToBottom, 300); // Increased delay
-        });
+            displayMessage(text, sender);
 
-        // --- Helper Functions ---
-        function addMessage(sender, text, type = 'text') {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message', `${sender}-message`);
-            const messageContentDiv = document.createElement('div');
-            messageContentDiv.classList.add('message-content');
+            // Add message to our history array and save it
+            chatHistory.push({ sender, text });
+            saveChatHistory();
+        };
 
-            if (type === 'loading') { messageContentDiv.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`; messageDiv.classList.add('loading'); }
-            else if (type === 'text') { messageContentDiv.innerHTML = marked.parse(text, { breaks: true, gfm: true }); }
-            else { messageContentDiv.textContent = text; }
+        function displayMessage(text, sender) {
+            const messageWrapper = document.createElement('div');
+            messageWrapper.className = `message-wrapper ${sender}`;
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
 
-            messageDiv.appendChild(messageContentDiv);
-            chatMessages.appendChild(messageDiv);
+            if (sender === 'bot' && window.marked) {
+                messageContent.innerHTML = marked.parse(text, { breaks: true, gfm: true });
+            } else {
+                messageContent.textContent = text;
+            }
 
-            const initialMsg = chatMessages.querySelector('.initial-message');
-             if(initialMsg && !messageDiv.classList.contains('initial-message') && type !== 'loading') { initialMsg.remove(); }
-
+            messageWrapper.appendChild(messageContent);
+            chatMessages.appendChild(messageWrapper);
             scrollToBottom();
-            return messageDiv;
+        }
+
+        function saveChatHistory() {
+            localStorage.setItem('ecoAssistantChatHistory', JSON.stringify(chatHistory));
+        }
+
+        function loadChatHistory() {
+            const savedHistory = localStorage.getItem('ecoAssistantChatHistory');
+            if (savedHistory) {
+                chatHistory = JSON.parse(savedHistory);
+                if (chatHistory.length > 0) {
+                    if (welcomeContainer) welcomeContainer.style.display = 'none';
+                    chatMain.classList.add('chat-active');
+                    chatMessages.innerHTML = '';
+                    chatHistory.forEach(msg => {
+                        displayMessage(msg.text, msg.sender);
+                    });
+                }
+            }
+        }
+
+        function showTypingIndicator() {
+            const typingWrapper = document.createElement('div');
+            typingWrapper.className = 'message-wrapper bot typing-indicator';
+            typingWrapper.innerHTML = `
+                <div class="message-content">
+                    <span></span><span></span><span></span>
+                </div>
+            `;
+            chatMessages.appendChild(typingWrapper);
+            scrollToBottom();
+            return typingWrapper;
+        }
+
+        function removeTypingIndicator(indicator) {
+            if (indicator) {
+                indicator.remove();
+            }
         }
 
         function scrollToBottom() {
-             setTimeout(() => { if (chatMessages) { chatMessages.scrollTop = chatMessages.scrollHeight; } }, 50);
-        }
-        function showLoadingIndicator() { return addMessage('bot', '', 'loading'); }
-        function removeLoadingIndicator(loadingElement) { if (loadingElement && chatMessages && chatMessages.contains(loadingElement)) { chatMessages.removeChild(loadingElement); } }
-
-        function adjustTextareaHeight() {
-            if (!userInput) return;
-            userInput.style.height = 'auto';
-            let scrollHeight = userInput.scrollHeight;
-            const maxHeight = 120; const minHeight = 44;
-            let newHeight = Math.max(minHeight, Math.min(scrollHeight, maxHeight));
-            userInput.style.height = newHeight + 'px';
-            userInput.style.overflowY = scrollHeight > maxHeight ? 'auto' : 'hidden';
-            if (sendButton) { sendButton.disabled = userInput.value.trim() === ''; }
-            // Trigger padding update because textarea height affects input area height
-             updateMessagesPadding(); // Important: update padding when textarea height changes
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        // --- API Call ---
-        async function sendMessageToGroq(message) {
-             // Keep existing API call logic...
-            if (!groqApiKey) { addMessage('bot', 'Error: API Key missing.'); return; }
-            const loadingElement = showLoadingIndicator();
-            if(sendButton) sendButton.disabled = true; if(userInput) userInput.disabled = true;
-            const systemPrompt = `You are Eco Assistant, an expert AI focused on environmental issues, water conservation, sustainability, recycling, and climate change. Provide helpful, accurate, and actionable advice. Keep responses concise and easy to understand. Format important points or steps using Markdown (like bullet points *, lists 1., or bold **) when appropriate. Do not engage in topics outside of this scope. Be friendly and encouraging.`;
-            const payload = { model: "llama3-8b-8192", messages: [ { role: "system", content: systemPrompt }, { role: "user", content: message } ], temperature: 0.7, max_tokens: 1024 };
-
-            try {
-                const response = await fetch(groqApiUrl, { method: 'POST', headers: { 'Authorization': `Bearer ${groqApiKey}`, 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                removeLoadingIndicator(loadingElement);
-                if (!response.ok) { const errorData = await response.json().catch(() => ({})); console.error("API Error:", response.status, errorData); let errMsg = `API Error: ${response.status}.`; if (response.status === 401) { errMsg += " Check API Key."; } else if (response.status === 429) { errMsg += " Rate limit exceeded."; } else { errMsg += ` ${errorData.error?.message || ''}`; } throw new Error(errMsg); }
-                const data = await response.json(); const botReply = data.choices[0]?.message?.content;
-                 const initialMsg = chatMessages.querySelector('.initial-message');
-                 if(initialMsg && botReply){ initialMsg.remove(); }
-                if (botReply) { addMessage('bot', botReply.trim()); } else { addMessage('bot', 'Empty response received.'); console.error("Empty response:", data); }
-            } catch (error) { console.error('Groq API Error:', error); removeLoadingIndicator(loadingElement); addMessage('bot', `Error: ${error.message}`);
-            } finally { if(userInput) userInput.disabled = false; if(sendButton) sendButton.disabled = !userInput || userInput.value.trim() === ''; if(userInput) userInput.focus(); adjustTextareaHeight(); scrollToBottom(); }
+        // --- Mobile Keyboard Handling ---
+        const isMobile = window.matchMedia("(max-width: 767px)").matches;
+        const inputContainer = document.querySelector('.chat-input-area-container');
+        if (isMobile && inputContainer && userInput) {
+            userInput.addEventListener('focus', () => {
+                setTimeout(() => {
+                    inputContainer.classList.add('keyboard-visible');
+                    scrollToBottom();
+                }, 300);
+            });
+            userInput.addEventListener('blur', () => {
+                inputContainer.classList.remove('keyboard-visible');
+            });
         }
 
-        // --- Event Listeners ---
-        sendButton.addEventListener('click', () => { const messageText = userInput.value.trim(); if (messageText && !userInput.disabled) { addMessage('user', messageText); sendMessageToGroq(messageText); userInput.value = ''; adjustTextareaHeight(); sendButton.disabled = true; } });
-        userInput.addEventListener('keypress', (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); if (sendButton && !sendButton.disabled) { sendButton.click(); } } });
-        userInput.addEventListener('input', adjustTextareaHeight);
-        // adjustTextareaHeight(); // Initial call handled by ResizeObserver timeout
-
-    } // End chat specific code
-}); // End DOMContentLoaded
+        loadChatHistory();
+    }
+});

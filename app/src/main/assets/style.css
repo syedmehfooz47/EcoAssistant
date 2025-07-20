@@ -72,9 +72,9 @@ body.no-scroll { overflow: hidden; }
     left: 0;
     width: var(--menu-width);
     height: 100%;
-    background: linear-gradient(180deg, rgba(46, 125, 50, 0.6), rgba(27, 94, 32, 0.65));
-    backdrop-filter: blur(35px);
-    -webkit-backdrop-filter: blur(35px);
+    background: linear-gradient(180deg, rgba(46, 125, 50, 0.3), rgba(27, 94, 32, 0.325)); /* Transparency increased by 50% */
+    backdrop-filter: blur(52.5px); /* Blur increased by 50% */
+    -webkit-backdrop-filter: blur(52.5px); /* Blur increased by 50% */
     border-right: 1px solid rgba(255, 255, 255, 0.2);
     transform: translateX(-100%);
     transition: transform var(--transition-smooth);
@@ -334,6 +334,11 @@ body.no-scroll { overflow: hidden; }
     }
 }
 @media (max-width: 1023px) {
+    :root {
+        --header-height: 78px; /* Original 60px + 30% */
+        --menu-blur: 24px; /* Blur increased by 50% for mobile header */
+        --header-bg: rgba(46, 125, 50, 0.375); /* Transparency increased by 50% for mobile header */
+    }
     .app-header {
         background-color: var(--header-bg);
         backdrop-filter: blur(var(--menu-blur)) saturate(180%);

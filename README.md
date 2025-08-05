@@ -88,8 +88,8 @@ cd EcoAssistant
 
 👨‍💻 [Syed Mehfooz](https://github.com/syedmehfooz47)  
 👨‍💻 [Shivshankar](https://github.com/SHIV-44-SHIV)    
-👨‍💻 [V Mohammed Hanzala](https://github.com/mohammedhanzala89)    
-👨‍💻 [Syed Mansoor](https://github.com/Syedmansoor18)]
+👨‍💻 [V Mohammed Hanzala](https://github.com/hanzala586)    
+👨‍💻 [Syed Mansoor](https://github.com/Syedmansoor18)
 👨‍💻 [Zeeshan Yalakpalli](https://github.com/zeeshan8088)  
 
 ---

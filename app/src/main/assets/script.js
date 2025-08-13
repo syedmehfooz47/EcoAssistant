@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         async function sendMessageToGroq(message) {
-            if (!groqApiKey || groqApiKey === "YOUR_GROQ_API_KEY_HERE") {
+            if (!groqApiKey || groqApiKey === "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") {
                 addMessage('Error: API Key is not configured. Please add your Groq API key in script.js.', 'bot');
                 return;
             }

@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- API Details ---
         const groqApiUrl = 'https://api.groq.com/openai/v1/chat/completions';
         // IMPORTANT: Replace with your actual key. Do not expose this key publicly.
-        const groqApiKey = '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';
+        const groqApiKey = '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';
         if (groqApiKey && groqApiKey.startsWith('gsk_')) {
             console.warn("SECURITY WARNING: Groq API Key is hardcoded. For production, use a backend proxy to protect your key.");
         }

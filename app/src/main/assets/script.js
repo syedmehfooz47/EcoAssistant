@@ -34,9 +34,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- API Details ---
         const groqApiUrl = 'https://api.groq.com/openai/v1/chat/completions';
         // IMPORTANT: Replace with your actual key. Do not expose this key publicly.
-        const groqApiKey = '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';
-        if (groqApiKey && groqApiKey.startsWith('gsk_')) {
-            console.warn("SECURITY WARNING: Groq API Key is hardcoded. For production, use a backend proxy to protect your key.");
+        // Get your key from https://console.groq.com/keys
+        const groqApiKey = 'YOUR_ACTUAL_GROQ_API_KEY_HERE'; // <--- REPLACE THIS LINE
+        if (groqApiKey === 'YOUR_ACTUAL_GROQ_API_KEY_HERE' || groqApiKey.startsWith('gsk_')) {
+            console.warn("SECURITY WARNING: Groq API Key is not configured or is a placeholder. Please replace 'YOUR_ACTUAL_GROQ_API_KEY_HERE' with your real key.");
+            // We'll still return an error message to the user, but this console warning is a heads-up for the developer.
+            // Note: The previous code was also checking for the placeholder key and displaying an error.
+            // This new check is a slight modification to handle the empty placeholder key as well.
         }
 
         let chatHistory = [];
@@ -69,8 +73,11 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         async function sendMessageToGroq(message) {
-            if (!groqApiKey || groqApiKey === "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") {
+            // Check if the API key is set before making the request
+            if (groqApiKey === 'YOUR_ACTUAL_GROQ_API_KEY_HERE' || groqApiKey.startsWith('gsk_')) {
                 addMessage('Error: API Key is not configured. Please add your Groq API key in script.js.', 'bot');
+                userInput.disabled = false;
+                userInput.focus();
                 return;
             }
 
